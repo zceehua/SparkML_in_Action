@@ -22,7 +22,7 @@ user_data.first()#'1|24|M|technician|85711'
 # user_data = spark.read.text("/ml-100k/u.user")#DataFrame[value: string]
 # user_data.first()#Row(value='1|24|M|technician|85711')
 
-#dataframe can not use map() directly, use dataframe.rdd to get RDD
+#Row can not use map() directly, use Row.rdd to get RDD
 #user_data=user_data.rdd
 #becareful we have to use x.value rather than x directly if using dataframe.rdd
 #user_fields=user_data.map(lambda x : x.value.split("|"))
