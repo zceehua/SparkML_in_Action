@@ -13,12 +13,12 @@ spark = SparkSession \
         .getOrCreate()
 
 #load data in csv format with header
-rawData = spark.read.load("D:\PycharmWorkSpace\My_Project\pyspark\pyspark_in_action\\03_regression\\hour.csv",format="csv",header=True)
+rawData = spark.read.load("./hour.csv",format="csv",header=True)
 rawData.count()#17379
 data=rawData
 #casual+registered=cnt
-rawData=rawData.drop("casual","registered")#注意如何drop列
-rawData=rawData.withColumnRenamed("cnt","label")#注意如何reanme列
+rawData=rawData.drop("casual","registered")#drop columns
+rawData=rawData.withColumnRenamed("cnt","label")#rename columns
 cat_features=rawData.columns[2:10]
 
 for col in cat_features:
