@@ -1,11 +1,11 @@
 ----------------------------------------------------------------
-Fri Mar 09 10:02:00 GMT 2018:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0162-0a35-c8ef-0000059dbed8 
-on database directory D:\PycharmWorkSpace\My_Project\pyspark\pyspark_in_action\04_cluster\metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@61fd717b 
+Sat Sep 08 22:05:46 CST 2018:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0165-b980-bc6c-00000695f048 
+on database directory D:\PycharmWorkSpace\Gits\SparkML_in_Action\04_cluster\metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@6fb682d5 
 Loaded from file:/E:/spark-2.2.1-bin-hadoop2.7/jars/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_131-b11
-user.dir=D:\PycharmWorkSpace\My_Project\pyspark\pyspark_in_action\04_cluster
+user.dir=D:\PycharmWorkSpace\Gits\SparkML_in_Action\04_cluster
 os.name=Windows 10
 os.arch=amd64
 os.version=10.0

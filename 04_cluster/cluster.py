@@ -1,12 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
-from pyspark.ml.feature import StringIndexer,OneHotEncoder
-from pyspark.ml.feature import SQLTransformer
 from pyspark.sql.functions import col, udf
-from pyspark.sql.types import IntegerType,StringType
 import numpy as np
-import matplotlib.pyplot as plt
-from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.recommendation import ALS
 from pyspark.sql.types import FloatType
 from pyspark.ml.clustering import KMeans,BisectingKMeans
@@ -32,7 +27,7 @@ titlesAndGenres=movies.map(lambda x:x.value.split("|")).map(lambda x:[(int(x[0])
 rating=rating.map(lambda x:x.value.split("\t")[:3]).map(lambda x: Row(userId=int(x[0]),movieId=int(x[1]),rating=float(x[2])))
 rate_frame=spark.createDataFrame(rating)
 
-
+#Alternating Least Squares (ALS) matrix factorization.
 als = ALS(maxIter=5, regParam=0.01, userCol="userId", itemCol="movieId", ratingCol="rating",
           coldStartStrategy="drop")
 model = als.fit(rate_frame)
@@ -93,8 +88,18 @@ cost = model.computeCost(itemFactors)
 print("Within Set Sum of Squared Errors = " + str(cost))#2181.4
 
 centers=[[i,center] for i,center in enumerate(centers)]
+#we have to parallelize local variable to transfer it to RDD
 centers = sc.parallelize(centers)
 centers=centers.map(lambda x:Row(prediction=x[0],center=Vectors.dense(x[1])))
+# +--------------------+----------+
+# |              center|prediction|
+# +--------------------+----------+
+# |[0.02541274572211...|         0|
+# |[-0.7982822563407...|         1|
+# |[-0.2898786095736...|         2|
+# |[-0.7523781595643...|         3|
+# |[-0.8731209230712...|         4|
+# +--------------------+----------+
 centers=spark.createDataFrame(centers)
 
 
@@ -127,7 +132,7 @@ itemFactors_center=itemFactors_center.withColumn("dist",dist("features","center"
 # |         4|434|[-0.8833367228507...| -0.15495218|[-0.6124414238147...| 9.084182|
 # |         4|202|[-0.1081635206937...|-0.052518647|[-0.6124414238147...| 8.707626|
 # |         4|604|[0.36510351300239...|  0.45913818|[-0.6124414238147...| 8.687587|
-itemFactors_center.sort("prediction","dist",ascending=False).show()#sort according to prediction then dist
+itemFactors_center.sort("prediction","dist",ascending=False).show()#sort according to prediction first and then dist
 
 # +----------+-----+
 # |prediction|count|
@@ -170,10 +175,11 @@ all=itemFactors_center.join(titlesAndGenres_f,["id"])
 # |616|         2|[-0.6528839468955...| -0.2530402|[-0.5422254357817...|0.54316664|    [Horror, Sci-Fi]|Night of the Livi...|   4|
 # |860|         2|[-0.5837879180908...|-0.21495089|[-0.5422254357817...|0.57241887|  [Horror, Thriller]|Believers, The (1...|   5|
 # +---+----------+--------------------+-----------+--------------------+----------+--------------------+--------------------+----+
+#partition the prediction first and then sort each partition according to its dist
 window = Window.partitionBy(all['prediction']).orderBy(all['dist'].asc())
 ranked_all=all.select('*', rank().over(window).alias('rank')).filter(col('rank') <= 5).show()
 
-#to get a more clear view of top 10 in each cluster
+#to get a more clear view of top 5 in each cluster
 ranked_all.filter(col("prediction")==0).select("prediction","category","title").show(truncate=False)#most are drama and comedy
 ranked_all.filter(col("prediction")==1).select("prediction","category","title").show(truncate=False)
 ranked_all.filter(col("prediction")==2).select("prediction","category","title").show(truncate=False)

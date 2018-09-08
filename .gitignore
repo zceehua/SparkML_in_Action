@@ -2,3 +2,7 @@
 *.dat
 02_classification/derby.log
 02_classification/metastore_db/db.lck
+*.txt
+*.ctrl
+*.properties
+*.lck
